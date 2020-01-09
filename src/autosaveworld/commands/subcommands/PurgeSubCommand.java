@@ -23,13 +23,12 @@ import java.util.List;
 import org.bukkit.command.CommandSender;
 
 import autosaveworld.commands.ISubCommand;
-import autosaveworld.core.AutoSaveWorld;
 
 public class PurgeSubCommand implements ISubCommand {
 
 	@Override
 	public void handle(CommandSender sender, String[] args) {
-		AutoSaveWorld.getInstance().getPurgeThread().triggerTaskRun();
+		return;
 	}
 
 	@Override
@@ -42,4 +41,4 @@ public class PurgeSubCommand implements ISubCommand {
 		return 0;
 	}
 
-}
+} 

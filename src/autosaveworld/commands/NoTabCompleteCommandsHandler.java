@@ -31,7 +31,6 @@ import autosaveworld.commands.subcommands.HelpSubCommand;
 import autosaveworld.commands.subcommands.LocaleSubCommand;
 import autosaveworld.commands.subcommands.PluginManagerSubCommand;
 import autosaveworld.commands.subcommands.ProcessManagerSubCommand;
-import autosaveworld.commands.subcommands.PurgeSubCommand;
 import autosaveworld.commands.subcommands.ReloadAllSubCommand;
 import autosaveworld.commands.subcommands.ReloadConfigMSGSubCommand;
 import autosaveworld.commands.subcommands.ReloadConfigSubCommand;
@@ -65,7 +64,7 @@ public class NoTabCompleteCommandsHandler implements CommandExecutor {
 		subcommandhandlers.put("serverstatus", new ServerStatusSubCommand());
 		subcommandhandlers.put("save", new SaveSubCommand());
 		subcommandhandlers.put("backup", new BackupSubCommand());
-		subcommandhandlers.put("purge", new PurgeSubCommand());
+		//subcommandhandlers.put("purge", new PurgeSubCommand());
 		subcommandhandlers.put("restart", new RestartSubCommand());
 		subcommandhandlers.put("forcerestart", new ForceRestartSubCommand());
 		subcommandhandlers.put("regenworld", new WorldRegenSubCommand());
@@ -94,10 +93,10 @@ public class NoTabCompleteCommandsHandler implements CommandExecutor {
 			// "autobackup" command handler
 			AutoSaveWorld.getInstance().getBackupThread().triggerTaskRun();
 			return true;
-		} else if (commandName.equalsIgnoreCase("autopurge")) {
+		/*} else if (commandName.equalsIgnoreCase("autopurge")) {
 			// "autopurge" command handler
 			AutoSaveWorld.getInstance().getPurgeThread().triggerTaskRun();
-			return true;
+			return true; */
 		} else if (commandName.equalsIgnoreCase("autosaveworld")) {
 			// "autosaveworld" command handler
 			if (args.length == 0) {

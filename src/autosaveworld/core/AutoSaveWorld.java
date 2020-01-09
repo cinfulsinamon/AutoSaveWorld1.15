@@ -32,7 +32,6 @@ import autosaveworld.core.logging.MessageLogger;
 import autosaveworld.features.backup.AutoBackupThread;
 import autosaveworld.features.consolecommand.AutoConsoleCommandThread;
 import autosaveworld.features.networkwatcher.NetworkWatcher;
-import autosaveworld.features.purge.AutoPurgeThread;
 import autosaveworld.features.restart.AutoRestartThread;
 import autosaveworld.features.restart.CrashRestartThread;
 import autosaveworld.features.restart.RestartShutdownHook;
@@ -68,7 +67,7 @@ public class AutoSaveWorld extends JavaPlugin {
 		configmsg = new AutoSaveWorldConfigMSG();
 		saveThread = new AutoSaveThread();
 		backupThread = new AutoBackupThread();
-		purgeThread = new AutoPurgeThread();
+		//purgeThread = new AutoPurgeThread();
 		autorestartThread = new AutoRestartThread();
 		crashrestartThread = new CrashRestartThread(Thread.currentThread());
 		consolecommandThread = new AutoConsoleCommandThread();
@@ -80,7 +79,7 @@ public class AutoSaveWorld extends JavaPlugin {
 
 	private final AutoSaveThread saveThread;
 	private final AutoBackupThread backupThread;
-	private final AutoPurgeThread purgeThread;
+	//private final AutoPurgeThread purgeThread;
 	private final AutoRestartThread autorestartThread;
 	private final CrashRestartThread crashrestartThread;
 	private final AutoConsoleCommandThread consolecommandThread;
@@ -102,9 +101,9 @@ public class AutoSaveWorld extends JavaPlugin {
 		return backupThread;
 	}
 
-	public AutoPurgeThread getPurgeThread() {
+	/*public AutoPurgeThread getPurgeThread() {
 		return purgeThread;
-	}
+	}*/
 
 	public AutoRestartThread getRestartThread() {
 		return autorestartThread;
@@ -130,7 +129,7 @@ public class AutoSaveWorld extends JavaPlugin {
 		}
 		saveThread.start();
 		backupThread.start();
-		purgeThread.start();
+		//purgeThread.start();
 		autorestartThread.start();
 		crashrestartThread.start();
 		consolecommandThread.start();
@@ -160,7 +159,7 @@ public class AutoSaveWorld extends JavaPlugin {
 		ConfigLoader.save(configmsg);
 		stopThread(saveThread);
 		stopThread(backupThread);
-		stopThread(purgeThread);
+		//stopThread(purgeThread);
 		stopThread(autorestartThread);
 		stopThread(crashrestartThread);
 		stopThread(consolecommandThread);

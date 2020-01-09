@@ -19,7 +19,8 @@ package autosaveworld.features.purge.plugins.wg;
 
 import org.bukkit.World;
 
-import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -46,7 +47,7 @@ public class RegionRegenTask implements Task {
 
 	@Override
 	public void performTask() {
-		RegionManager rm = WGBukkit.getRegionManager(world);
+		RegionManager rm = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
 		if (!(noregenoverlap && (rm.getApplicableRegions(region).size() > 1))) {
 			MessageLogger.debug("Regenerating region " + region.getId());
 			WorldEditRegeneration.get().regenerateRegion(world, region.getMinimumPoint(), region.getMaximumPoint());

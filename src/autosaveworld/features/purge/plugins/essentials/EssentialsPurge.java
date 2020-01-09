@@ -1,7 +1,5 @@
 package autosaveworld.features.purge.plugins.essentials;
 
-import java.util.UUID;
-
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.earth2me.essentials.Essentials;
@@ -20,7 +18,7 @@ public class EssentialsPurge extends DataPurge {
 	@Override
 	public void doPurge() {
 		UserMap map = JavaPlugin.getPlugin(Essentials.class).getUserMap();
-		for (UUID uuid : map.getAllUniqueUsers()) {
+		for (String uuid : map.getAllUniqueUsers()) {
 			if (!activeplayerslist.isActiveUUID(uuid)) {
 				MessageLogger.debug("Essentials user "+uuid+" is inactive. Removing entry and file.");
 				map.getUser(uuid).reset();

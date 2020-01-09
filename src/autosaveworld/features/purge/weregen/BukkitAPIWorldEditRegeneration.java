@@ -24,13 +24,18 @@ import org.bukkit.Material;
 import org.bukkit.World;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.blocks.BaseBlock;
-import com.sk89q.worldedit.blocks.BlockType;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.math.BlockVector2;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.Vector2;
+import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldedit.world.block.BaseBlock;
+import com.sk89q.worldedit.world.block.BlockType;
+import com.sk89q.worldedit.world.block.BlockTypes;
 import com.sk89q.worldguard.bukkit.BukkitUtil;
 
 import autosaveworld.core.logging.MessageLogger;
@@ -45,17 +50,10 @@ public class BukkitAPIWorldEditRegeneration implements WorldEditRegenrationInter
 	private ItemSpawnListener itemremover = new ItemSpawnListener();
 
 	@Override
-	public void regenerateRegion(World world, org.bukkit.util.Vector minpoint, org.bukkit.util.Vector maxpoint) {
-		Vector minbpoint = BukkitUtil.toVector(minpoint);
-		Vector maxbpoint = BukkitUtil.toVector(maxpoint);
-		regenerateRegion(world, minbpoint, maxbpoint);
-	}
-
-	@Override
 	@SuppressWarnings("deprecation")
-	public void regenerateRegion(World world, Vector minpoint, Vector maxpoint) {
+	public void regenerateRegion(World world, BlockVector3 minpoint, BlockVector3 maxpoint) {
 		BukkitWorld bw = new BukkitWorld(world);
-		EditSession es = new EditSession(bw, Integer.MAX_VALUE);
+		EditSession es = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(world), Integer.MAX_VALUE);
 		es.setFastMode(true);
 		int maxy = bw.getMaxY() + 1;
 		Region region = new CuboidRegion(bw, minpoint, maxpoint);
@@ -65,14 +63,14 @@ public class BukkitAPIWorldEditRegeneration implements WorldEditRegenrationInter
 		BukkitUtils.registerListener(itemremover);
 
 		// first save all blocks that are inside affected chunks but outside the region
-		for (Vector2D chunk : region.getChunks()) {
-			Vector min = new Vector(chunk.getBlockX() * 16, 0, chunk.getBlockZ() * 16);
+		for (BlockVector2 chunk : region.getChunks()) {
+			BlockVector3 min = chunk.toBlockVector3();
 			for (int x = 0; x < 16; ++x) {
 				for (int y = 0; y < maxy; ++y) {
 					for (int z = 0; z < 16; ++z) {
-						Vector pt = min.add(x, y, z);
+						BlockVector3 pt = min.add(x, y, z);
 						if (!region.contains(pt)) {
-							placeBackQueue.add(new BlockToPlaceBack(pt, es.getBlock(pt)));
+							placeBackQueue.add(new BlockToPlaceBack(pt.toVector3(), es.getBlock(pt).toBaseBlock()));
 						}
 					}
 				}
@@ -82,7 +80,7 @@ public class BukkitAPIWorldEditRegeneration implements WorldEditRegenrationInter
 		//TODO: Set blocks that has tileentity to air first
 
 		// regenerate all affected chunks
-		for (Vector2D chunk : region.getChunks()) {
+		for (BlockVector2 chunk : region.getChunks()) {
 			try {
 				world.regenerateChunk(chunk.getBlockX(), chunk.getBlockZ());
 			} catch (Exception t) {
@@ -104,21 +102,21 @@ public class BukkitAPIWorldEditRegeneration implements WorldEditRegenrationInter
 		new PlaceBackStage(new PlaceBackStage.PlaceBackCheck() {
 			@Override
 			public boolean shouldPlaceBack(BaseBlock block) {
-				return !BlockType.shouldPlaceLast(block.getId()) && !BlockType.shouldPlaceFinal(block.getId());
+				return !BlockType.shouldPlaceLast(block.getNbtId()) && !BlockType.shouldPlaceFinal(block.getNbtId());
 			}
 		}),
 		// last stage place back
 		new PlaceBackStage(new PlaceBackStage.PlaceBackCheck() {
 			@Override
 			public boolean shouldPlaceBack(BaseBlock block) {
-				return BlockType.shouldPlaceLast(block.getId());
+				return BlockType.shouldPlaceLast(block.getNbtId());
 			}
 		}),
 		// final stage place back
 		new PlaceBackStage(new PlaceBackStage.PlaceBackCheck() {
 			@Override
 			public boolean shouldPlaceBack(BaseBlock block) {
-				return BlockType.shouldPlaceFinal(block.getId());
+				return BlockType.shouldPlaceFinal(block.getNbtId());
 			}
 		})
 	};
@@ -141,16 +139,16 @@ public class BukkitAPIWorldEditRegeneration implements WorldEditRegenrationInter
 				BlockToPlaceBack blockToPlaceBack = entryit.next();
 				BaseBlock block = blockToPlaceBack.getBlock();
 				if (check.shouldPlaceBack(block)) {
-					Vector pt = blockToPlaceBack.getPosition();
+					Vector3 pt = blockToPlaceBack.getPosition();
 					try {
 						// set block to air to fix one really weird problem
-						world.getBlockAt(pt.getBlockX(), pt.getBlockY(), pt.getBlockZ()).setType(Material.AIR);
+						world.getBlockAt((int) pt.getX(),(int) pt.getY(),(int) pt.getZ()).setType(Material.AIR);
 						// set block back if it is not air
-						if (!block.isAir()) {
-							es.rawSetBlock(pt, block);
+						if (block.getBlockType() == BlockTypes.AIR) {
+							es.setBlock(pt.toBlockPoint(), block);
 						}
 					} catch (Exception t) {
-						MessageLogger.exception("Unable to place back block " + pt.getBlockX() + " " + pt.getBlockY() + " " + pt.getBlockZ(), t);
+						MessageLogger.exception("Unable to place back block " + pt.getX() + " " + pt.getY() + " " + pt.getZ(), t);
 					} finally {
 						entryit.remove();
 					}

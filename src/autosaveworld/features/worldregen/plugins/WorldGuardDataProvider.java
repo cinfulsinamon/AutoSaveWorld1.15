@@ -19,9 +19,11 @@ package autosaveworld.features.worldregen.plugins;
 
 import org.bukkit.World;
 
-import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.GlobalProtectedRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 
 public class WorldGuardDataProvider extends DataProvider {
 
@@ -31,7 +33,8 @@ public class WorldGuardDataProvider extends DataProvider {
 
 	@Override
 	protected void init() {
-		for (ProtectedRegion region : WGBukkit.getRegionManager(world).getRegions().values()) {
+		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+		for (ProtectedRegion region : container.get(BukkitAdapter.adapt(world)).getRegions().values()) {
 			if (region instanceof GlobalProtectedRegion) {
 				continue;
 			}
