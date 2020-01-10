@@ -29,14 +29,11 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.math.Vector2;
 import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.world.block.BaseBlock;
-import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
-import com.sk89q.worldguard.bukkit.BukkitUtil;
 
 import autosaveworld.core.logging.MessageLogger;
 import autosaveworld.features.purge.weregen.UtilClasses.BlockToPlaceBack;
@@ -50,7 +47,6 @@ public class BukkitAPIWorldEditRegeneration implements WorldEditRegenrationInter
 	private ItemSpawnListener itemremover = new ItemSpawnListener();
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public void regenerateRegion(World world, BlockVector3 minpoint, BlockVector3 maxpoint) {
 		BukkitWorld bw = new BukkitWorld(world);
 		EditSession es = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(world), Integer.MAX_VALUE);
@@ -102,21 +98,21 @@ public class BukkitAPIWorldEditRegeneration implements WorldEditRegenrationInter
 		new PlaceBackStage(new PlaceBackStage.PlaceBackCheck() {
 			@Override
 			public boolean shouldPlaceBack(BaseBlock block) {
-				return !BlockType.shouldPlaceLast(block.getNbtId()) && !BlockType.shouldPlaceFinal(block.getNbtId());
+				return !PlacementOrder.shouldPlaceLast(BukkitAdapter.adapt(block.getBlockType())) && !PlacementOrder.shouldPlaceFinal(BukkitAdapter.adapt(block.getBlockType()));
 			}
 		}),
 		// last stage place back
 		new PlaceBackStage(new PlaceBackStage.PlaceBackCheck() {
 			@Override
 			public boolean shouldPlaceBack(BaseBlock block) {
-				return BlockType.shouldPlaceLast(block.getNbtId());
+				return PlacementOrder.shouldPlaceLast(BukkitAdapter.adapt(block.getBlockType()));
 			}
 		}),
 		// final stage place back
 		new PlaceBackStage(new PlaceBackStage.PlaceBackCheck() {
 			@Override
 			public boolean shouldPlaceBack(BaseBlock block) {
-				return BlockType.shouldPlaceFinal(block.getNbtId());
+				return PlacementOrder.shouldPlaceFinal(BukkitAdapter.adapt(block.getBlockType()));
 			}
 		})
 	};
